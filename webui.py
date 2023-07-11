@@ -261,7 +261,8 @@ if __name__ == "__main__":
 
         # Check if a model has been downloaded yet
         if len([item for item in glob.glob('text-generation-webui/models/*') if not item.endswith(('.txt', '.yaml'))]) == 0:
-            print_big_message("WARNING: You haven't downloaded any model yet.\nOnce the web UI launches, head over to the bottom of the \"Model\" tab and download one.")
+            download_model()
+            # print_big_message("WARNING: You haven't downloaded any model yet.\nOnce the web UI launches, head over to the bottom of the \"Model\" tab and download one.")
 
         # Workaround for llama-cpp-python loading paths in CUDA env vars even if they do not exist
         conda_path_bin = os.path.join(conda_env_path, "bin")
