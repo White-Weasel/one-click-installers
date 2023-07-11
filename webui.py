@@ -233,12 +233,12 @@ def update_dependencies():
 
 
 def download_model():
-    os.chdir("text-generation-webui")
+    os.chdir(os.path.join(script_dir, "text-generation-webui"))
     run_cmd(f"python download-model.py Neko-Institute-of-Science/LLaMA-7B-4bit-128g", environment=True)
 
 
 def launch_webui():
-    os.chdir("text-generation-webui")
+    os.chdir(os.path.join(script_dir, "text-generation-webui"))
     run_cmd(f"python server.py --model Neko-Institute-of-Science_LLaMA-7B-4bit-128g --loader gptq-for-llama --share --wbits 4 --groupsize 128 --model_type LLaMA", environment=True)
     
 
