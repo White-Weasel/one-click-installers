@@ -67,30 +67,30 @@ def check_env():
 
 
 def install_dependencies():
-    # Select your GPU or, choose to run in CPU mode
-    print("What is your GPU")
-    print()
-    print("A) NVIDIA")
-    print("B) AMD")
-    print("C) Apple M Series")
-    print("D) None (I want to run in CPU mode)")
-    print()
-    gpuchoice = input("Input> ").lower()
+    # # Select your GPU or, choose to run in CPU mode
+    # print("What is your GPU")
+    # print()
+    # print("A) NVIDIA")
+    # print("B) AMD")
+    # print("C) Apple M Series")
+    # print("D) None (I want to run in CPU mode)")
+    # print()
+    # gpuchoice = input("Input> ").lower()
 
-    if gpuchoice == "d":
-        print_big_message("Once the installation ends, make sure to open webui.py with a text editor\nand add the --cpu flag to CMD_FLAGS.")
+    # if gpuchoice == "d":
+    #     print_big_message("Once the installation ends, make sure to open webui.py with a text editor\nand add the --cpu flag to CMD_FLAGS.")
 
-    # Install the version of PyTorch needed
-    if gpuchoice == "a":
-        run_cmd('conda install -y -k cuda ninja git -c nvidia/label/cuda-11.7.0 -c nvidia && python -m pip install torch==2.0.1+cu117 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117', assert_success=True, environment=True)
-    elif gpuchoice == "b":
-        print("AMD GPUs are not supported. Exiting...")
-        sys.exit()
-    elif gpuchoice == "c" or gpuchoice == "d":
-        run_cmd("conda install -y -k ninja git && python -m pip install torch torchvision torchaudio", assert_success=True, environment=True)
-    else:
-        print("Invalid choice. Exiting...")
-        sys.exit()
+    # # Install the version of PyTorch needed
+    # if gpuchoice == "a":
+    run_cmd('conda install -y -k cuda ninja git -c nvidia/label/cuda-11.7.0 -c nvidia && python -m pip install torch==2.0.1+cu117 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117', assert_success=True, environment=True)
+    # elif gpuchoice == "b":
+    #     print("AMD GPUs are not supported. Exiting...")
+    #     sys.exit()
+    # elif gpuchoice == "c" or gpuchoice == "d":
+    #     run_cmd("conda install -y -k ninja git && python -m pip install torch torchvision torchaudio", assert_success=True, environment=True)
+    # else:
+    #     print("Invalid choice. Exiting...")
+    #     sys.exit()
 
     # Clone webui to our computer
     run_cmd("git clone https://github.com/oobabooga/text-generation-webui.git", assert_success=True, environment=True)
@@ -130,20 +130,20 @@ def update_dependencies():
             run_cmd("python -m pip install -r " + extension_req_path + " --upgrade", assert_success=True, environment=True)
 
     # Latest bitsandbytes requires minimum compute 7.0
-    # nvcc_device_query = "__nvcc_device_query" if not sys.platform.startswith("win") else "__nvcc_device_query.exe"
-    # min_compute = 70
-    # compute_array = run_cmd(os.path.join(conda_env_path, "bin", nvcc_device_query), environment=True, capture_output=True)
-    # old_bnb = "bitsandbytes==0.38.1" if not sys.platform.startswith("win") else "https://github.com/jllllll/bitsandbytes-windows-webui/raw/main/bitsandbytes-0.38.1-py3-none-any.whl"
-    # if compute_array.returncode == 0 and not any(int(compute) >= min_compute for compute in compute_array.stdout.decode('utf-8').split(',')):
-    #     old_bnb_install = run_cmd(f"python -m pip install {old_bnb} --force-reinstall --no-deps", environment=True).returncode == 0
-    #     message = "\n\nWARNING: GPU with compute < 7.0 detected!\n"
-    #     if old_bnb_install:
-    #         message += "Older version of bitsandbytes has been installed to maintain compatibility.\n"
-    #         message += "You will be unable to use --load-in-4bit!\n"
-    #     else:
-    #         message += "You will be unable to use --load-in-8bit until you install bitsandbytes 0.38.1!\n"
+    nvcc_device_query = "__nvcc_device_query" if not sys.platform.startswith("win") else "__nvcc_device_query.exe"
+    min_compute = 70
+    compute_array = run_cmd(os.path.join(conda_env_path, "bin", nvcc_device_query), environment=True, capture_output=True)
+    old_bnb = "bitsandbytes==0.38.1" if not sys.platform.startswith("win") else "https://github.com/jllllll/bitsandbytes-windows-webui/raw/main/bitsandbytes-0.38.1-py3-none-any.whl"
+    if compute_array.returncode == 0 and not any(int(compute) >= min_compute for compute in compute_array.stdout.decode('utf-8').split(',')):
+        old_bnb_install = run_cmd(f"python -m pip install {old_bnb} --force-reinstall --no-deps", environment=True).returncode == 0
+        message = "\n\nWARNING: GPU with compute < 7.0 detected!\n"
+        if old_bnb_install:
+            message += "Older version of bitsandbytes has been installed to maintain compatibility.\n"
+            message += "You will be unable to use --load-in-4bit!\n"
+        else:
+            message += "You will be unable to use --load-in-8bit until you install bitsandbytes 0.38.1!\n"
 
-    #     print_big_message(message)
+        print_big_message(message)
 
     # The following dependencies are for CUDA, not CPU
     # Parse output of 'pip show torch' to determine torch version
@@ -234,12 +234,11 @@ def update_dependencies():
 
 def download_model():
     os.chdir("text-generation-webui")
-    run_cmd("python download-model.py", environment=True)
+    run_cmd(f"python download-model.py Neko-Institute-of-Science/LLaMA-7B-4bit-128g", environment=True)
 
 
 def launch_webui():
     os.chdir("text-generation-webui")
-    run_cmd(f"python download-model.py Neko-Institute-of-Science/LLaMA-7B-4bit-128g", environment=True)
     run_cmd(f"python server.py --model Neko-Institute-of-Science_LLaMA-7B-4bit-128g --loader gptq-for-llama --share --wbits 4 --groupsize 128 --model_type LLaMA", environment=True)
     
 
